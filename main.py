@@ -78,30 +78,41 @@ async def show_all_bags(ctx):
 
         await ctx.send(f"There are **{len(bags)}** total bags.\n **Current Bags:**\n- {bag_name_string}")
 
-
-
-
 @bot.command(name='add')
 async def add_to_bag(ctx, bag_name: str, *, content: str):
     """
     Usage: $add bagname item1, item2, item3
-    Example: $add apple red, green, blue, red and yellow, white
+    Example: $add apple red, green, blue
     """
     if bag_name not in bags:
         await ctx.send(f"Bag '{bag_name}' does not exist. Create it first!")
         return
     
-    # 1. Split the content string by commas
-    # 2. .strip() removes the leading/trailing spaces (e.g. " green" -> "green")
-    # 3. 'if item.strip()' ensures we don't add empty items if there are double commas
+    if bag_name in bag_tracker:
+        await ctx.send(f"A bag named '{bag_name}' is currently active. Use `$end {bag_name}` first.")
+        return 
+
+    # Split and clean the input items
     new_items = [item.strip() for item in content.split(',') if item.strip()]
     
     if not new_items:
         await ctx.send("I couldn't find any items to add. Make sure to separate them with commas!")
         return
 
-    bags[bag_name].extend(new_items)
-    await ctx.send(f"✅ Added {len(new_items)} items to **{bag_name}**. Total items: {len(bags[bag_name])}")
+    added_count = 0
+    current_bag_items = bags[bag_name] 
+
+    for item in new_items:
+        if item in current_bag_items:
+            await ctx.send(f"item {item} is already in the bag")
+        else:
+            current_bag_items.append(item)
+            added_count += 1
+
+    if added_count > 0:
+        await ctx.send(f"✅ Added {added_count} new items to **{bag_name}**. Total items: {len(current_bag_items)}")
+    else:
+        await ctx.send("No new items were added.")
 
 @bot.command(name='remove')
 async def remove_from_bag(ctx, bag_name: str, *, content: str):
@@ -111,6 +122,10 @@ async def remove_from_bag(ctx, bag_name: str, *, content: str):
     """
     if bag_name not in bags:
         await ctx.send(f"Bag '{bag_name}' does not exist.")
+        return
+    
+    if bag_name in bag_tracker:
+        await ctx.send(f"A bag named '{bag_name}' is currently active. Use `$end {bag_name}` first.")
         return
     
     # 1. Split the content string by commas
@@ -139,6 +154,10 @@ async def drop_item(ctx, bag_name: str, index: int):
     """
     if bag_name not in bags:
         await ctx.send(f"Bag '{bag_name}' does not exist.")
+        return
+    
+    if bag_name in bag_tracker:
+        await ctx.send(f"A bag named '{bag_name}' is currently active. Use `$end {bag_name}` first.")
         return
     
     bag = bags[bag_name]
