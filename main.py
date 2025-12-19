@@ -119,7 +119,7 @@ async def add_to_bag(ctx, bag_name: str, *, content: str):
     current_bag_items = server_bags[bag_name] 
     for item in new_items:
         if item in current_bag_items:
-            await ctx.send(f"item {item} is already in the bag")
+            await ctx.send(f"Item: {item} is already in the bag")
         else:
             current_bag_items.append(item)
             added_count += 1
