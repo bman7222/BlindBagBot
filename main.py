@@ -209,7 +209,7 @@ async def check_bag(ctx, bag_name: str):
     if bag_name in server_bags:
         items = server_bags[bag_name]
         if items:
-            await ctx.send(f"**{bag_name}** Contains:\n- {'- '.join(items)}")
+            await ctx.send(f"**{bag_name}** Contains:\n- {'\n- '.join(items)}")
         else:
             await ctx.send(f"'{bag_name}' is empty.")
     else:
